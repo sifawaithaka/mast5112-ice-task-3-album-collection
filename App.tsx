@@ -10,15 +10,15 @@ import {
 } from 'react-native';
 
 // npx expo install @expo/ui
-import { Picker } from '@expo/ui/community/picker';
+import { Picker } from '@react-native-picker/picker';
 
 type Album = {
   id: string;
   title: string;
   artist: string;
-  year: string;
+  year: number;
   genre: string;
-  rating: string;
+  rating: number;
 };
 
 const genres: string[] = [
@@ -61,8 +61,7 @@ export default function App() {
     }
 
     if (
-      title.trim().length < MIN_TEXT_LENGTH &&
-      title.trim().length > MAX_TITLE_LENGTH
+      title.trim().length < MIN_TEXT_LENGTH || title.trim().length > MAX_TITLE_LENGTH
     ) {
       Alert.alert(
         'Validation Error',
@@ -101,7 +100,7 @@ export default function App() {
 
     const currentYear = new Date().getFullYear();
 
-    if (numericYear < MIN_YEAR) {
+    if (numericYear < MIN_YEAR || numericYear > currentYear) {
       Alert.alert(
         'Validation Error',
         `Album year must be between ${MIN_YEAR} and ${currentYear}.`
@@ -109,7 +108,7 @@ export default function App() {
       return false;
     }
 
-    if (!genre) {
+    if (!genre || genre.trim() === '') {
       Alert.alert('Validation Error', 'Please select a genre.');
       return false;
     }
@@ -126,7 +125,7 @@ export default function App() {
       return false;
     }
 
-    if (numericRating < 1) {
+    if (numericRating < 1 || numericRating > MAX_RATING) {
       Alert.alert(
         'Validation Error',
         `Rating must be between 1 and ${MAX_RATING}.`
@@ -156,7 +155,7 @@ export default function App() {
       rating: Number(rating),
     };
 
-    setAlbums([temporaryAlbum]);
+    setAlbums((prevAlbums) => [...prevAlbums, temporaryAlbum]);
 
     setTitle('');
     setArtist('');
@@ -167,7 +166,7 @@ export default function App() {
 
   const handleDelete = (id: string) => {
     setAlbums((currentAlbums) =>
-      currentAlbums.filter((album) => album.id === id)
+      currentAlbums.filter((album) => album.id !== id)
     );
   };
 
@@ -221,15 +220,15 @@ export default function App() {
 
       <Text style={styles.label}>Genre</Text>
       <Picker
-        selectedValue={title}
-        onValueChange={(value) => setGenre(value)}
-      >
-        <Picker.Item label="Select a genre..." value="" />
+  selectedValue={genre}
+  onValueChange={(value) => setGenre(value)}
+>
+  <Picker.Item label="Select a genre..." value="" />
 
-        {genres.map((item) => (
-	  <Picker.Item key={item} label={item} value={genre} />
-	))}
-      </Picker>
+  {genres.map((item) => (
+    <Picker.Item key={item} label={item} value={item} />
+  ))}
+</Picker>
 
       <Text style={styles.label}>Rating</Text>
       <TextInput
@@ -250,7 +249,7 @@ export default function App() {
 
       <FlatList
         data={albums}
-        keyExtractor={(item) => item.title}
+        keyExtractor={(item) => item.id}
         renderItem={renderAlbum}
         ListEmptyComponent={
           <Text style={styles.emptyMessage}>
