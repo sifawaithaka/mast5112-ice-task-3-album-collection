@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   Alert,
-  FlatList,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -190,75 +190,90 @@ export default function App() {
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>My Album Collection</Text>
+  <ScrollView contentContainerStyle={styles.container}>
+    <Text style={styles.heading}>My Album Collection</Text>
 
-      <Text style={styles.label}>Album Title</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter album title"
-        value={title}
-        onChangeText={setTitle}
-      />
+    {/* Input Form */}
+    <Text style={styles.label}>Album Title</Text>
+    <TextInput
+      style={styles.input}
+      placeholder="Enter album title"
+      value={title}
+      onChangeText={setTitle}
+    />
 
-      <Text style={styles.label}>Artist</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter artist name"
-        value={artist}
-        onChangeText={setArtist}
-      />
+    <Text style={styles.label}>Artist</Text>
+    <TextInput
+      style={styles.input}
+      placeholder="Enter artist name"
+      value={artist}
+      onChangeText={setArtist}
+    />
 
-      <Text style={styles.label}>Year</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter release year"
-        value={year}
-        onChangeText={setYear}
-        keyboardType="numeric"
-      />
+    <Text style={styles.label}>Year</Text>
+    <TextInput
+      style={styles.input}
+      placeholder="Enter release year"
+      value={year}
+      onChangeText={setYear}
+      keyboardType="number-pad"
+    />
 
-      <Text style={styles.label}>Genre</Text>
-      <Picker
-  selectedValue={genre}
-  onValueChange={(value) => setGenre(value)}
->
-  <Picker.Item label="Select a genre..." value="" />
+    <Text style={styles.label}>Genre</Text>
+    <Picker
+      selectedValue={genre}
+      onValueChange={(value) => setGenre(value)}
+    >
+      <Picker.Item label="Select a genre..." value="" />
+      {genres.map((item) => (
+        <Picker.Item key={item} label={item} value={item} />
+      ))}
+    </Picker>
 
-  {genres.map((item) => (
-    <Picker.Item key={item} label={item} value={item} />
-  ))}
-</Picker>
+    <Text style={styles.label}>Rating</Text>
+    <TextInput
+      style={styles.input}
+      placeholder="Enter rating from 1 to 5"
+      value={rating}
+      onChangeText={setRating}
+      keyboardType="number-pad"
+    />
 
-      <Text style={styles.label}>Rating</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter rating from 1 to 5"
-        value={rating}
-        onChangeText={setRating}
-        keyboardType="numeric"
-      />
+    <TouchableOpacity style={styles.addButton} onPress={handleSave}>
+      <Text style={styles.addButtonText}>Add to Favourites</Text>
+    </TouchableOpacity>
 
-      <TouchableOpacity style={styles.addButton} onPress={handleSave}>
-        <Text style={styles.addButtonText}>Add to Favourites</Text>
-      </TouchableOpacity>
+    <Text style={styles.collectionHeading}>
+      My Favourite Albums ({albums.length})
+    </Text>
 
-      <Text style={styles.collectionHeading}>
-        My Favourite Albums ({albums.length})
+    {/* Scrollable Album List */}
+    {albums.length === 0 ? (
+      <Text style={styles.emptyMessage}>
+        No albums have been added yet.
       </Text>
+    ) : (
+      albums.map((item) => (
+        <View key={item.id} style={styles.albumCard}>
+          <View style={styles.albumInformation}>
+            <Text style={styles.albumTitle}>{item.title}</Text>
+            <Text style={styles.albumArtist}>{item.artist}</Text>
+            <Text>Year: {item.year}</Text>
+            <Text>Genre: {item.genre}</Text>
+            <Text>Rating: {item.rating}/5</Text>
+          </View>
 
-      <FlatList
-        data={albums}
-        keyExtractor={(item) => item.id}
-        renderItem={renderAlbum}
-        ListEmptyComponent={
-          <Text style={styles.emptyMessage}>
-            No albums have been added yet.
-          </Text>
-        }
-      />
-    </View>
-  );
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={() => handleDelete(item.id)}
+          >
+            <Text style={styles.deleteButtonText}>Delete</Text>
+          </TouchableOpacity>
+        </View>
+      ))
+    )}
+  </ScrollView>
+);
 }
 
 const styles = StyleSheet.create({
